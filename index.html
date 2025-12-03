@@ -1,0 +1,311 @@
+import React, { useState, useEffect } from 'react';
+import { Menu, X, Info, ChevronRight, Maximize2, Palette, Box } from 'lucide-react';
+
+const REPO_BASE = "https://github.com/seriousanimation/volumes/blob/main/";
+const RAW_SUFFIX = "?raw=true";
+
+// Helper to construct URLs safely
+const getImageUrl = (filename) => {
+  // Encode URI component handles spaces and special chars, but we need to ensure 
+  // we don't double encode if the list already had some encoding. 
+  // Given the raw list, we treat them as literal filenames.
+  return `${REPO_BASE}${encodeURIComponent(filename)}${RAW_SUFFIX}`;
+};
+
+const ARTIST_DATA = [
+  {
+    id: 'matta',
+    name: 'Roberto Matta',
+    description: 'A seminal figure in 20th-century abstract expressionism and surrealism. Matta\'s "inscapes" visualize the psyche as a three-dimensional, architectural space filled with floating, biomorphic geometries.',
+    images: [
+      "3-Matta.jpg",
+      "ROberto-MattaDisasters of Mysticism 1942.png",
+      "Roberto-Mattathe-violence-of-the-machines-1953.jpeg",
+      "baillygallery-roberto-matta-1911-2002-felix-ardor-amat-1975.jpg"
+    ]
+  },
+  {
+    id: 'sage',
+    name: 'Kay Sage',
+    description: 'Sage\'s work is characterized by architectural scaffolding and draped forms set in desolate, mist-filled landscapes. Her volumes are precise, creating a haunting sense of isolation and structured space.',
+    images: [
+      "9.-Kay-Sage-838x1024.jpg",
+      "Kay Sage70729c79-1792-4f0a-bfe1-cf4c0011c59a_464x600.jpg",
+      "KaySage-The-Instant-1949.jpg",
+      "KaySage.jpg",
+      "KaySagedanger-construction-ahead-1940.jpg",
+      "kay-sage-i-saw-three-cities-1944-obelisk-art-history.jpg",
+      "kay-sage_ring-of-iron-ring-of-wool_1947_aware_women-artists_artistes-femmes.jpg",
+      "kay-sage_third-paragraph-h_1953__aware_women-artists_artistes-femmes.jpg"
+    ]
+  },
+  {
+    id: 'tanguy',
+    name: 'Yves Tanguy',
+    description: 'Master of the biomorphic landscape. Tanguy paints vast, dreamlike plains scattered with unidentifiable, pebble-like objects that cast sharp shadows, emphasizing their solidity and presence in a deep, infinite volume.',
+    images: [
+      "YvesTanguyMars-1953-e1584999693237-768x879.jpg",
+      "tanguy_promontory-palace.640x0.jpg",
+      "yves TanguyQ.jpg",
+      "yves-tanguy-in-an-indeterminate-place-collection-peggy-guggenheim-venice-03.jpg",
+      "yvesTanguyImaginary-Numbers-798x1024.jpeg",
+      "yvesTanguyImaginary-Numbers-798x1024.webp"
+    ]
+  },
+  {
+    id: 'moore',
+    name: 'Henry Moore',
+    description: 'Best known for his semi-abstract monumental bronze sculptures, Moore\'s drawings and paintings explore volume through mass and void. His figures are deconstructed into organic, rolling landscapes of bone and stone.',
+    images: [
+      "HenryMoore5.jpg",
+      "HenryMoore6 (1).jpg",
+      "henry-moore-Seated-Mother-and-Child9.jpg",
+      "henry-moore-deconstructed-figures-c1970.jpeg"
+    ]
+  },
+  {
+    id: 'green',
+    name: 'George D. Green',
+    description: 'A pioneer of Abstract Illusionism. Green creates trompe-l\'œil paintings that appear to burst out of the frame. His layers of faux wood and floating shapes challenge the viewer\'s perception of depth and surface.',
+    images: [
+      "GeorgeDGreen1.jpg",
+      "GeorgeDGreen2.jpg",
+      "GeorgeDGreeninstantaneous-everything.jpg"
+    ]
+  },
+  {
+    id: 'blume',
+    name: 'Peter Blume',
+    description: 'American painter and sculptor whose work combines elements of precisionism, surrealism, and magic realism. His volumes are rendered with sharp, photographic clarity, often arranging disparate objects in complex, dream-like stage sets.',
+    images: [
+      "Blume Study For Crashing Surf 1989.jpg",
+      "PeterBlume.jpg",
+      "PeterBlume1.jpg",
+      "PeterBlumeicCIsImNvbnZlcnQiLCItcXVhbGl0eSA5MCAtcmVzaXplIDIwMDB4MjAwMFx1MDAzZSJdXQ.jpg"
+    ]
+  }
+];
+
+const LandingPage = ({ onEnter }) => (
+  <div className="min-h-screen bg-neutral-900 text-white flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="absolute inset-0 opacity-20">
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-neutral-900 via-transparent to-neutral-900 z-10"></div>
+      {/* Background Collage effect */}
+      <div className="grid grid-cols-3 gap-4 transform rotate-12 scale-150 opacity-40">
+        {ARTIST_DATA.slice(0, 9).map((artist, i) => (
+          <img 
+            key={i}
+            src={getImageUrl(artist.images[0])} 
+            alt="" 
+            className="w-full h-64 object-cover rounded-lg filter grayscale hover:grayscale-0 transition-all duration-1000"
+          />
+        ))}
+      </div>
+    </div>
+    
+    <div className="z-20 text-center max-w-3xl px-6">
+      <div className="mb-6 flex justify-center">
+        <Box className="w-16 h-16 text-emerald-400 animate-pulse" />
+      </div>
+      <h1 className="text-6xl md:text-8xl font-serif font-bold tracking-tighter mb-6 bg-clip-text text-transparent bg-gradient-to-r from-emerald-200 to-cyan-400">
+        Volumetric Visions
+      </h1>
+      <p className="text-xl md:text-2xl text-neutral-300 font-light mb-10 leading-relaxed">
+        An interactive exploration of drawing and painting artworks that visualize forms based on 3D volumes. 
+        Witness how Surrealists and Abstract Illusionists sculpt space on a flat canvas.
+      </p>
+      <button 
+        onClick={onEnter}
+        className="group relative px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-neutral-900 font-bold rounded-full transition-all duration-300 transform hover:scale-105 shadow-[0_0_20px_rgba(16,185,129,0.5)]"
+      >
+        <span className="flex items-center gap-2">
+          Enter Gallery <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        </span>
+      </button>
+    </div>
+  </div>
+);
+
+const ArtistSidebar = ({ activeArtist, onSelect, isOpen, toggleSidebar }) => (
+  <>
+    {/* Mobile Overlay */}
+    {isOpen && (
+      <div 
+        className="fixed inset-0 bg-black/80 z-40 md:hidden backdrop-blur-sm"
+        onClick={toggleSidebar}
+      />
+    )}
+    
+    {/* Sidebar */}
+    <div className={`fixed top-0 left-0 h-full w-80 bg-neutral-900 border-r border-neutral-800 z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+      <div className="p-8 border-b border-neutral-800 flex justify-between items-center">
+        <h2 className="text-2xl font-serif text-white tracking-wide">Artists</h2>
+        <button onClick={toggleSidebar} className="md:hidden text-neutral-400 hover:text-white">
+          <X className="w-6 h-6" />
+        </button>
+      </div>
+      
+      <div className="py-4 overflow-y-auto h-[calc(100vh-88px)]">
+        {ARTIST_DATA.map((artist) => (
+          <button
+            key={artist.id}
+            onClick={() => {
+              onSelect(artist);
+              if (window.innerWidth < 768) toggleSidebar();
+            }}
+            className={`w-full text-left px-8 py-4 transition-all duration-300 border-l-4 hover:bg-neutral-800 group ${
+              activeArtist?.id === artist.id 
+                ? 'border-emerald-500 bg-neutral-800' 
+                : 'border-transparent text-neutral-400'
+            }`}
+          >
+            <div className={`text-lg font-medium group-hover:text-emerald-300 ${activeArtist?.id === artist.id ? 'text-emerald-400' : 'text-neutral-300'}`}>
+              {artist.name}
+            </div>
+            <div className="text-xs text-neutral-500 mt-1 uppercase tracking-wider group-hover:text-neutral-400">
+              {artist.images.length} Works
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  </>
+);
+
+const ImageLightbox = ({ image, onClose }) => {
+  if (!image) return null;
+  
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 backdrop-blur-xl animate-in fade-in duration-200">
+      <button 
+        onClick={onClose}
+        className="absolute top-6 right-6 text-neutral-400 hover:text-white transition-colors"
+      >
+        <X className="w-10 h-10" />
+      </button>
+      
+      <div className="max-w-[90vw] max-h-[90vh] relative p-2">
+        <img 
+          src={getImageUrl(image)} 
+          alt="Artwork detail" 
+          className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm"
+        />
+        <div className="mt-4 text-center text-neutral-500 font-mono text-sm">
+          Visualizing form and volume
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const GalleryView = ({ artist, onOpenLightbox }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(false);
+    const timer = setTimeout(() => setMounted(true), 50);
+    return () => clearTimeout(timer);
+  }, [artist.id]);
+
+  return (
+    <div className={`p-6 md:p-12 transition-opacity duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-16 border-b border-neutral-800 pb-8">
+          <h1 className="text-5xl md:text-7xl font-serif text-white mb-6 tracking-tight">
+            {artist.name}
+          </h1>
+          <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div className="flex-1 text-lg text-neutral-400 leading-relaxed max-w-2xl font-light">
+              {artist.description}
+            </div>
+            <div className="flex items-center gap-2 text-emerald-500 bg-emerald-500/10 px-4 py-2 rounded-full text-sm font-medium">
+              <Palette className="w-4 h-4" />
+              <span>{artist.images.length} Featured Works</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Masonry Grid */}
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
+          {artist.images.map((img, idx) => (
+            <div 
+              key={idx}
+              className="break-inside-avoid relative group cursor-zoom-in overflow-hidden rounded-lg bg-neutral-800 shadow-xl"
+              onClick={() => onOpenLightbox(img)}
+            >
+              <img
+                src={getImageUrl(img)}
+                alt={`${artist.name} artwork`}
+                className="w-full h-auto transform transition-transform duration-700 group-hover:scale-110 group-hover:brightness-110"
+                loading="lazy"
+              />
+              
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-6">
+                <span className="text-emerald-300 font-mono text-xs uppercase tracking-widest">
+                  View Volume
+                </span>
+                <Maximize2 className="w-5 h-5 text-white" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const App = () => {
+  const [entered, setEntered] = useState(false);
+  const [activeArtist, setActiveArtist] = useState(ARTIST_DATA[0]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState(null);
+
+  if (!entered) {
+    return <LandingPage onEnter={() => setEntered(true)} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-neutral-950 text-neutral-200 font-sans selection:bg-emerald-500 selection:text-white">
+      
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-neutral-900/90 backdrop-blur border-b border-neutral-800 z-30 flex items-center justify-between px-4">
+        <button onClick={() => setSidebarOpen(true)} className="text-white p-2">
+          <Menu className="w-6 h-6" />
+        </button>
+        <span className="font-serif font-bold text-lg text-emerald-500">Volumetric Visions</span>
+        <div className="w-6" /> {/* Spacer for centering */}
+      </div>
+
+      <ArtistSidebar 
+        activeArtist={activeArtist} 
+        onSelect={(artist) => {
+          setActiveArtist(artist);
+          window.scrollTo(0, 0);
+        }}
+        isOpen={sidebarOpen}
+        toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+      />
+
+      <main className="md:pl-80 pt-16 md:pt-0 min-h-screen">
+        <GalleryView 
+          artist={activeArtist} 
+          onOpenLightbox={setLightboxImage} 
+        />
+        
+        {/* Footer */}
+        <footer className="mt-20 py-8 text-center text-neutral-600 text-sm border-t border-neutral-900">
+          <p>Images sourced from Volumetric Collection via GitHub</p>
+        </footer>
+      </main>
+
+      <ImageLightbox 
+        image={lightboxImage} 
+        onClose={() => setLightboxImage(null)} 
+      />
+    </div>
+  );
+};
+
+export default App;
