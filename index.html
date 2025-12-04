@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Volumetric Visions Gallery</title>
+    <title>Illusions of Space</title>
     
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -70,6 +70,9 @@
         const ChevronRightIcon = (props) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m9 18 6-6-6-6"/></svg>
         );
+        const ChevronLeftIcon = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m15 18-6-6 6-6"/></svg>
+        );
         const Maximize2Icon = (props) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>
         );
@@ -78,6 +81,12 @@
         );
         const BoxIcon = (props) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+        );
+        const PlusIcon = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        );
+        const MinusIcon = (props) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M5 12h14"/></svg>
         );
 
         // --- Data & Config ---
@@ -191,7 +200,7 @@
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between p-6">
                         <span className="text-emerald-300 font-mono text-xs uppercase tracking-widest">
-                            View Volume
+                            View Image
                         </span>
                         <Maximize2Icon className="w-5 h-5 text-white" />
                     </div>
@@ -221,7 +230,7 @@
                         <BoxIcon className="w-16 h-16 text-emerald-400 animate-pulse" />
                     </div>
                     <h1 className="text-6xl md:text-8xl font-serif font-bold tracking-tighter mb-6 bg-clip-text text-transparent bg-gradient-to-r from-emerald-200 to-cyan-400">
-                        Volumetric Visions
+                        Illusions of Space
                     </h1>
                     <p className="text-xl md:text-2xl text-neutral-300 font-light mb-10 leading-relaxed">
                         An interactive exploration of drawing and painting artworks that visualize forms based on 3D volumes. 
@@ -285,26 +294,110 @@
             </React.Fragment>
         );
 
-        const ImageLightbox = ({ image, onClose }) => {
+        const ImageLightbox = ({ image, onClose, onNext, onPrev, hasNext, hasPrev }) => {
+            const [scale, setScale] = useState(1);
+            const [isLoaded, setIsLoaded] = useState(false);
+
+            // Reset state when image changes
+            useEffect(() => {
+                setScale(1);
+                setIsLoaded(false);
+            }, [image]);
+
+            // Keyboard navigation
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (e.key === 'Escape') onClose();
+                    if (e.key === 'ArrowRight' && hasNext) onNext();
+                    if (e.key === 'ArrowLeft' && hasPrev) onPrev();
+                    if (e.key === '+' || e.key === '=') setScale(s => Math.min(4, s + 0.5));
+                    if (e.key === '-') setScale(s => Math.max(1, s - 0.5));
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [onClose, onNext, onPrev, hasNext, hasPrev]);
+
             if (!image) return null;
-            
+
             return (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 backdrop-blur-xl animate-in fade-in duration-200">
-                    <button 
-                        onClick={onClose}
-                        className="absolute top-6 right-6 text-neutral-400 hover:text-white transition-colors"
-                    >
-                        <XIcon className="w-10 h-10" />
-                    </button>
                     
-                    <div className="max-w-[90vw] max-h-[90vh] relative p-2 flex flex-col items-center">
-                        <img 
-                            src={getImageUrl(image)} 
-                            alt="Artwork detail" 
-                            className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm"
-                        />
-                        <div className="mt-4 text-center text-neutral-500 font-mono text-sm bg-black/50 px-4 py-2 rounded-full">
-                            Visualizing form and volume
+                    {/* Top Controls Toolbar */}
+                    <div className="absolute top-6 right-6 flex items-center gap-4 z-50">
+                        <div className="flex items-center bg-neutral-800/80 rounded-full px-1 border border-neutral-700 backdrop-blur-md">
+                            <button 
+                                onClick={() => setScale(s => Math.max(1, s - 0.5))} 
+                                className="p-2 hover:text-emerald-400 text-neutral-400 transition-colors disabled:opacity-50"
+                                disabled={scale <= 1}
+                                title="Zoom Out"
+                            >
+                                <MinusIcon className="w-5 h-5"/>
+                            </button>
+                            <span className="w-8 text-center text-xs text-neutral-500 font-mono">{Math.round(scale * 100)}%</span>
+                            <button 
+                                onClick={() => setScale(s => Math.min(4, s + 0.5))} 
+                                className="p-2 hover:text-emerald-400 text-neutral-400 transition-colors disabled:opacity-50"
+                                disabled={scale >= 4}
+                                title="Zoom In"
+                            >
+                                <PlusIcon className="w-5 h-5"/>
+                            </button>
+                        </div>
+                        <button 
+                            onClick={onClose} 
+                            className="text-neutral-400 hover:text-white transition-colors bg-neutral-800/80 p-2 rounded-full border border-neutral-700 hover:bg-red-500/20 hover:border-red-500/50"
+                        >
+                            <XIcon className="w-6 h-6" />
+                        </button>
+                    </div>
+
+                    {/* Navigation Buttons */}
+                    {hasPrev && (
+                        <button 
+                            onClick={onPrev} 
+                            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-neutral-800/50 hover:bg-emerald-500/20 text-white rounded-full transition-all hover:scale-110 z-50 border border-neutral-700 backdrop-blur-sm group"
+                        >
+                            <ChevronLeftIcon className="w-8 h-8 group-hover:-translate-x-1 transition-transform" />
+                        </button>
+                    )}
+                    {hasNext && (
+                        <button 
+                            onClick={onNext} 
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-neutral-800/50 hover:bg-emerald-500/20 text-white rounded-full transition-all hover:scale-110 z-50 border border-neutral-700 backdrop-blur-sm group"
+                        >
+                            <ChevronRightIcon className="w-8 h-8 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                    )}
+
+                    {/* Image Container */}
+                    <div className="w-full h-full flex items-center justify-center overflow-hidden p-4">
+                        <div 
+                            style={{ 
+                                transform: `scale(${scale})`, 
+                                transition: 'transform 0.3s cubic-bezier(0.2, 0, 0.2, 1)',
+                                cursor: scale > 1 ? 'grab' : 'default'
+                            }} 
+                            className="relative flex items-center justify-center"
+                        >
+                            {!isLoaded && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <BoxIcon className="w-12 h-12 text-emerald-500 animate-spin" />
+                                </div>
+                            )}
+                            <img 
+                                src={getImageUrl(image)} 
+                                alt="Artwork detail" 
+                                className="max-w-[85vw] max-h-[85vh] object-contain shadow-2xl rounded-sm"
+                                draggable="false"
+                                onLoad={() => setIsLoaded(true)}
+                            />
+                        </div>
+                    </div>
+                    
+                    {/* Caption fixed at bottom */}
+                    <div className="absolute bottom-6 left-0 right-0 text-center pointer-events-none">
+                        <div className="inline-block bg-black/70 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 shadow-lg">
+                             <span className="text-neutral-300 font-mono text-sm">Visualizing form and volume</span>
                         </div>
                     </div>
                 </div>
@@ -343,7 +436,7 @@
                         <div className="columns-1 md:columns-2 lg:columns-3 gap-8">
                             {artist.images.map((img) => (
                                 <ImageWithLoader 
-                                    key={img} // KEY FIX: Using filename as key forces React to treat this as a new image, preventing 'stale' flashing
+                                    key={img} 
                                     src={getImageUrl(img)}
                                     alt={`${artist.name} artwork`}
                                     onClick={() => onOpenLightbox(img)}
@@ -361,6 +454,19 @@
             const [sidebarOpen, setSidebarOpen] = useState(false);
             const [lightboxImage, setLightboxImage] = useState(null);
 
+            // Helpers for lightbox navigation
+            const currentIndex = lightboxImage ? activeArtist.images.indexOf(lightboxImage) : -1;
+            const hasNext = currentIndex < activeArtist.images.length - 1;
+            const hasPrev = currentIndex > 0;
+
+            const handleNext = () => {
+                if (hasNext) setLightboxImage(activeArtist.images[currentIndex + 1]);
+            };
+
+            const handlePrev = () => {
+                if (hasPrev) setLightboxImage(activeArtist.images[currentIndex - 1]);
+            };
+
             if (!entered) {
                 return <LandingPage onEnter={() => setEntered(true)} />;
             }
@@ -373,7 +479,7 @@
                         <button onClick={() => setSidebarOpen(true)} className="text-white p-2">
                             <MenuIcon className="w-6 h-6" />
                         </button>
-                        <span className="font-serif font-bold text-lg text-emerald-500">Volumetric Visions</span>
+                        <span className="font-serif font-bold text-lg text-emerald-500">Illusions of Space</span>
                         <div className="w-6" /> {/* Spacer for centering */}
                     </div>
 
@@ -401,7 +507,11 @@
 
                     <ImageLightbox 
                         image={lightboxImage} 
-                        onClose={() => setLightboxImage(null)} 
+                        onClose={() => setLightboxImage(null)}
+                        onNext={handleNext}
+                        onPrev={handlePrev}
+                        hasNext={hasNext}
+                        hasPrev={hasPrev}
                     />
                 </div>
             );
